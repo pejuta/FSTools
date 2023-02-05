@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        FSActionCharaSelector
 // @namespace   https://twitter.com/11powder
-// @description Stella Boardの各種行動画面のキャラ選択を便利にする
+// @description 童話画廊の各種行動画面のキャラ選択を便利にする
 // @include     /^http:\/\/soraniwa\.428\.st\/fs\/?(?:\?mode=action)?/
 // @version     1.0.0
 // @updateURL   https://pejuta.github.io/FSTools/UserScripts/FSActionCharaSelector.user.js
