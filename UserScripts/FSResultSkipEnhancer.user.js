@@ -20,14 +20,12 @@
         ).appendTo("head");
     }
 
-    $(document).on("load", function() {
+    $(document)
+      .on("click", "#closeScroll", () => {
+            showSequences();
+        });
         $(document)
-          .on("click", "#closeScroll", () => {
-                showSequences();
-            });
-        $(document)
-            .on("click", "#closeScrollAll", () => {
-                showSequences();
-            });
-    });
+        .on("click", "#closeScrollAll", () => {
+            showSequences();
+        });
 })();
