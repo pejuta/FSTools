@@ -690,8 +690,8 @@
                 const skillNum = $tds.eq(0).children(".marks.marki0").html() || "";
                 const skillName = $tds.eq(2).text();
                 const skillUsableCount = $tds.eq(4).text();
-                const queryTarget = `(${skillNum})${typeName ? `【${typeName}】` : ""}${skillName}${isAuto ? "【自動】【A】" : ""}${isStep ? "【S】" : ""}[${skillUsableCount}]`;
-                const placeholder = `(${skillNum})${typeName ? `【${typeName}】` : ""}${skillName}`;
+                const queryTarget = `(${skillNum})${typeName ? `【${typeName}】` : ""}${isLocked ? "🔒" : ""}${skillName}${isAuto ? "【自動】【A】" : ""}${isStep ? "【S】" : ""}[${skillUsableCount}]`;
+                const placeholder = `(${skillNum})${typeName ? `【${typeName}】` : ""}${isLocked ? "🔒" : ""}${skillName}`;
 
                 return `<li title="${$hoverDesc.text()}" data-skillid="${skillid}" data-querytarget="${queryTarget}" data-placeholder="${placeholder}" data-snum="${skillNum}" data-stype="${typeName}" data-sprop="${skillProp}" data-sname="${skillName}" data-islocked="${isLocked}" data-isstep="${isStep}" data-isauto="${isAuto}" data-scount="${skillUsableCount}">${innerHTML}</li>`;
             }).get()
