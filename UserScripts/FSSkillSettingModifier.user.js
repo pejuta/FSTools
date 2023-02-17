@@ -3,7 +3,7 @@
 // @namespace   https://twitter.com/11powder
 // @description 童話画廊の戦闘設定を快適にする
 // @include     /^http:\/\/soraniwa\.428\.st\/fs\/?(?:\?mode=battle(&.*)?)?$/
-// @version     1.0.6
+// @version     1.0.7
 // @require     https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js
 // @updateURL   https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
 // @downloadURL https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
@@ -654,21 +654,22 @@
                     return null; // must exclude later
                 }
 
-                let type = $tds.eq(1).html();
                 let typeName = "";
+                let typeHtml = "<i class='ticon'></i>";
                 let skillProp = "[通常]";
-                if (type === "　　　　　") {
-                    type = "<i class='ticon'></i>";
-                } else {
+                if ($tds.eq(1).children().text() !== "　　　") {
                     typeName = $tds.eq(1).text().substr(1, 2);
-                    type = `<i class="ticon ${$tds.eq(1).children()[0].className}" title="${typeName}"></i>`;
+                    typeHtml = `<i class="ticon ${$tds.eq(1).children()[0].className}" title="${typeName}"></i>`;
                     skillProp = $tds.eq(2).children("span:first").html();
                 }
                 const isLocked = $tds.eq(2).find(".cshigh").length > 0;
 
-                const $hoverDesc = $tds.eq(3).filter(".skillact").children(".skillhoverdesc");
+                const $hoverDesc = $tds.eq(3).children(".skillhoverdesc");
                 const isStep = $hoverDesc.children("span:first").html() === "【S】";
                 const isAuto = $hoverDesc.contents().eq(1).text().startsWith("自動:");
+                if (skillid === "120") {
+                    skillid;
+                }
                 const skillDesc = $hoverDesc.contents().eq(1).text();
 
                 const $index = $tds.eq(0).clone();
@@ -679,12 +680,12 @@
                     $index.children(".marks.marki0").addClass("autoskill");
                 }
                 const skillNameHTML = $tds.eq(2).html();
-                const innerHTML = $index.html() + type + skillNameHTML;
+                const innerHTML = $index.html() + typeHtml + skillNameHTML;
 
                 const skillNum = $tds.eq(0).children(".marks.marki0").html() || "";
                 const skillName = $tds.eq(2).text();
                 const skillUsableCount = $tds.eq(4).text();
-                const queryTarget = `(${skillNum})${typeName ? `<${typeName}>` : ""}${isLocked ? "🔒" : ""}${skillName}${isAuto ? "[自動][AUTO]" : ""}${isStep ? "[ステップ][STEP]" : ""}[${skillUsableCount}]` + skillDesc;
+                const queryTarget = `(${skillNum})${typeName ? `<${typeName}>` : ""}${isLocked ? "🔒" : ""}${skillName}${isAuto ? "[自動][AUTO]" : ""}${isStep ? "[ステップ][STEP]" : ""}[${skillUsableCount}]${skillDesc}`;
                 const placeholder = `(${skillNum})${typeName ? `<${typeName}>` : ""}${isLocked ? "🔒" : ""}${skillName}`;
 
                 return `<li title="${$hoverDesc.text()}" data-skillid="${skillid}" data-querytarget="${queryTarget}" data-placeholder="${placeholder}" data-snum="${skillNum}" data-stype="${typeName}" data-sprop="${skillProp}" data-sname="${skillName}" data-islocked="${isLocked}" data-isstep="${isStep}" data-isauto="${isAuto}" data-scount="${skillUsableCount}">${innerHTML}</li>`;
