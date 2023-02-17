@@ -153,6 +153,9 @@
         opacity: 1;
     }
 
+    .${SKILL_ITEM_CLASSNAME} > .marks.marki0 {
+        background-color: rgb(255 255 255 / 25%);
+    }
 </style>`);
 
             // enabling dblclick toggle
@@ -299,6 +302,7 @@
         resetDataIndex($skills) {
             for (let i = 1; i <= $skills.length; i++) {
                 const $skill = $skills.eq(i - 1);
+                $skill.attr("data-index", i);
                 $skill.data("index", i);
             }
         }
@@ -456,7 +460,7 @@
 .searchableselect_sel .marks.marki0 {
     width: 2.67em;
     margin-right: 1px;
-    background-color: #302011;
+    background-color: #229911;
 }
 
 .searchableselect_sel .marks.marki0.stepskill {
@@ -481,16 +485,24 @@
     background-position: center;
     background-repeat: no-repeat;
 }
-.searchableselect .ticon.type {
+.searchableselect_sel .type {
+    padding-left: 0;
+    padding-right: 0;
+    margin: 0;
+}
+.searchableselect_sel .ticon.type {
     background-color: transparent;
+    text-shadow: initial;
+    border: initial;
+    border-radius: initial;
 }
 .searchableselect .ticon.type+span {
-    color: #22cc22!important;
+    color: #11aa11!important;
 }
-searchableselect_pls > .ticon {
+searchableselect_pls .ticon {
     height: 24px;
 }
-searchableselect_pls > .ticon:before {
+searchableselect_pls .ticon:before {
     width: 24px;
     height: 24px;
     background-size: 30px 30px;
@@ -501,9 +513,10 @@ searchableselect_pls > .ticon:before {
             $("div.divp").parent().css("overflow", "clip visible");
         }
 
-        constructor(excludesBaseSkills) {
-            this.excludesBaseSkills = excludesBaseSkills;
-            this.$ul = this.$buildSkillList();
+        constructor($baseSelects) {
+            this.$baseSelects = $baseSelects;
+            
+            this.$ul = this.$buildSkillList(this.$baseSelects);
 
             this.$ul.on("click", "li", (e) => {
                 this.applySelected(e.currentTarget);
@@ -564,14 +577,8 @@ searchableselect_pls > .ticon:before {
             this.markAllSetSameSkillError();
         }
 
-        enable($baseSelects) {
-            if (!$baseSelects.length) {
-                return;
-            }
-
-            this.$baseSelects = $baseSelects;
-
-            this.$searchables = $baseSelects.before("<div class='searchableselect'><div class='searchableselect_btn'></div><div class='searchableselect_sel'><div class='searchableselect_pls'></div><input type='text' class='searchableselect_val'></div></div>").prev();
+        enable() {
+            this.$searchables = this.$baseSelects.before("<div class='searchableselect'><div class='searchableselect_btn'></div><div class='searchableselect_sel'><div class='searchableselect_pls'></div><input type='text' class='searchableselect_val'></div></div>").prev();
             this.$sels = this.$searchables.children(".searchableselect_sel");
             this.$vals = this.$sels.children(".searchableselect_val");
             this.$btns = this.$searchables.children(".searchableselect_btn");
@@ -584,7 +591,7 @@ searchableselect_pls > .ticon:before {
             });
             this.$ul[0].style.display = "inline-block"; // for width
             this.$sels.css({
-                height: $baseSelects.outerHeight(),
+                height: this.$baseSelects.outerHeight(),
                 width: this.$ul.width() + SKILL_SELECT_WIDTH_CORRECTION_PX,
             });
             this.$ul[0].style.display = "";
@@ -610,7 +617,7 @@ searchableselect_pls > .ticon:before {
                 }
             });
 
-            $baseSelects.hide().on("change", (e) => {
+            this.$baseSelects.hide().on("change", (e) => {
                 this.rescanDelayer.setDelay(() => this.rescanAll(), 150);
             });
 
@@ -627,20 +634,25 @@ searchableselect_pls > .ticon:before {
             this.rescanAll();
         }
 
-        $buildSkillList() {
+        static $buildSkillList($baseSelects) {
+            const baseIds = $baseSelects.eq(0).children("option").map((_, e) => e.value + "").get();
+            const baseIdSet = new Set(baseIds);
+
             const lisHtml = $("table#skill tr").slice(0).map((i, e) => {
                 if (i === 0) {
                     return `<li data-skillid="0" data-placeholder="(0) --設定なし--"><span class="marks marki0">0</span><span>　</span>--設定なし--</li>`;
                 }
 
                 const $tds = $(e).children("td");
+                const skillid = $tds.eq(1).attr("id").substr(4);
+                if (!baseIdSet.has(skillid)) {
+                    return null; // must exclude later
+                }
+
                 let type = $tds.eq(1).html();
                 let typeName = "";
                 let skillProp = "[通常]";
                 if (type === "　　　　　") {
-                    if (this.excludesBaseSkills) {
-                        return "";
-                    }
                     type = "<i class='ticon'></i>";
                 } else {
                     typeName = $tds.eq(1).text().substr(1, 2);
@@ -670,10 +682,9 @@ searchableselect_pls > .ticon:before {
                 const queryTarget = `(${skillNum})${typeName ? `【${typeName}】` : ""}${isLocked ? "🔒" : ""}${skillName}${isAuto ? "【自動】【A】" : ""}${isStep ? "【S】" : ""}[${skillUsableCount}]`;
                 const placeholder = `(${skillNum})${typeName ? `【${typeName}】` : ""}${isLocked ? "🔒" : ""}${skillName}`;
 
-                const skillid = $tds.eq(1).attr("id").substr(4);
-
                 return `<li title="${$hoverDesc.text()}" data-skillid="${skillid}" data-querytarget="${queryTarget}" data-placeholder="${placeholder}" data-snum="${skillNum}" data-stype="${typeName}" data-sprop="${skillProp}" data-sname="${skillName}" data-islocked="${isLocked}" data-isstep="${isStep}" data-isauto="${isAuto}" data-scount="${skillUsableCount}">${innerHTML}</li>`;
             }).get()
+              .filter((e) => e) // excluding nulls
               .join("");
 
             return $(`<ul>${lisHtml}</ul>`);
@@ -782,13 +793,13 @@ searchableselect_pls > .ticon:before {
     font-weight: bold;
 }
 .itemlist tr.marked .marks.marki0 {
-    background-color: #bb0000;
+    /* background-color: #bb0000; */
 }
 .itemlist tr.marked.odd {
-    background-color: #fff1c1;
+    background-color: rgb(255 255 223 /30%);
 }
 .itemlist tr.marked.even {
-    background-color: #ffffc1;
+    background-color: rgb(255 255 223 /30%);
 }
 </style>`);
         }
@@ -1262,9 +1273,9 @@ searchableselect_pls > .ticon:before {
     new SortableSkills($("div.divp")).enable();
 
     SearchableSelect.init();
-    new SearchableSelect().enable($(".selskill"));
-    const $kouhai = $("select[name='kouhai_base']").add("select[name='kouhai_mix']");
-    new SearchableSelect(true).enable($kouhai);
+    new SearchableSelect($(".selskill")).enable();
+    new SearchableSelect($("select[name='kouhai_base']")).enable();
+    new SearchableSelect($("select[name='kouhai_mix']")).enable();
     $kouhai.prev().css("margin-top", "-4px");
 
     SkillTypeCounter.init();
