@@ -328,7 +328,7 @@
     position: relative;
     display: inline-flex;
     margin: 1px;
-    vertical-align: top;
+    vertical-align: bottom;
 }
 
 .searchableselect_sel {
@@ -633,8 +633,9 @@
                 }
                 const isLocked = $tds.eq(2).has(".cshigh");
 
-                const isStep = $tds.eq(3).children(".skillact").children(".skillhoverdesc").children("span:first").html() === "【S】";
-                const isAuto = $tds.eq(3).children(".skillact").children(".skillhoverdesc").contents().eq(1).text().startsWith("自動:");
+                const $hoverDesc = $tds.eq(3).children(".skillact").children(".skillhoverdesc");
+                const isStep = $hoverDesc.children("span:first").html() === "【S】";
+                const isAuto = $hoverDesc.contents().eq(1).text().startsWith("自動:");
 
 
                 const $index = $tds.eq(0).clone();
@@ -655,7 +656,7 @@
 
                 const skillid = $tds.eq(1).attr("id").substr(4);
 
-                return `<li title="${$tds.eq(3).text()}" data-skillid="${skillid}" data-querytarget="${queryTarget}" data-placeholder="${placeholder}" data-snum="${skillNum}" data-stype="${typeName}" data-sprop="${skillProp}" data-sname="${skillName}" data-islocked="${isLocked}" data-isstep="${isStep}" data-isauto="${isAuto}" data-scount="${skillUsableCount}">${innerHTML}</li>`;
+                return `<li title="${$hoverDesc.text()}" data-skillid="${skillid}" data-querytarget="${queryTarget}" data-placeholder="${placeholder}" data-snum="${skillNum}" data-stype="${typeName}" data-sprop="${skillProp}" data-sname="${skillName}" data-islocked="${isLocked}" data-isstep="${isStep}" data-isauto="${isAuto}" data-scount="${skillUsableCount}">${innerHTML}</li>`;
             }).get()
               .join("");
 
@@ -907,13 +908,14 @@
                     const $targetSkillDesc = $(e).next(/*desc*/);
 
                     const skillId = $(e).val();
-                    const $desc = $("#desc" + skillId).children(".skillhoverdesc");
+                    const $desc = $("#desc" + skillId);
                     if (!$desc.length) {
                         $targetSkillDesc.html("").attr("title", "");
                         return;
                     }
+                    const $hoverDesc = $desc.children(".skillhoverdesc");
 
-                    const sdesc = $desc.html();
+                    const sdesc = $hoverDesc.html();
                     const stype = $("#type" + skillId).html();
                     const $countLeft = $desc.next("td");
                     let scount = "";
@@ -926,7 +928,7 @@
                     }
                     scount = `<span class="skillcount">${scount}</span>`;
 
-                    $targetSkillDesc.html(scount + stype + sdesc).attr("title", $desc.text());
+                    $targetSkillDesc.html(scount + stype + sdesc).attr("title", $hoverDesc.text());
                 });
             };
 
