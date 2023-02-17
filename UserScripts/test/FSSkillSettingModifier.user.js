@@ -186,9 +186,9 @@
         }
 
         enable() {
-            this.$container.children("hr").last().insertAfter(this.$container).css({ position: "relative", top: "-8px", left: "10px" });
-            this.$container.children("hr").each((i, e) => {
-                $(e).nextUntil("hr").addBack().wrapAll(`<div class="${SKILL_ITEM_CLASSNAME}"></div>`);
+            this.$container.children(".skillserif").last().next("br").insertAfter(this.$container).css({ position: "relative", top: "-8px", left: "10px" });
+            this.$container.children(".marks.marki0").each((i, e) => {
+                $(e).nextUntil(".marks.marki0").addBack().wrapAll(`<div class="${SKILL_ITEM_CLASSNAME}"></div>`);
             });
             $("." + SKILL_ITEM_CLASSNAME).each((i, e) => {
                 $(`<div class="${SKILL_ITEM_TOGGLE_CLASSNAME}"/>`).appendTo(e);
@@ -335,6 +335,7 @@
     display: inline-block;
     position: relative;
     -webkit-writing-mode: horizontal-tb !important;
+    color: black;
     text-rendering: auto;
     letter-spacing: normal;
     word-spacing: normal;
@@ -455,6 +456,7 @@
 .searchableselect_sel .marks.marki0 {
     width: 2.67em;
     margin-right: 1px;
+    background-color: #302011;
 }
 
 .searchableselect_sel .marks.marki0.stepskill {
@@ -478,6 +480,20 @@
     background-size: 22px 22px;
     background-position: center;
     background-repeat: no-repeat;
+}
+.searchableselect .ticon.type {
+    background-color: transparent;
+}
+.searchableselect .ticon.type+span {
+    color: #22cc22!important;
+}
+searchableselect_pls > .ticon {
+    height: 24px;
+}
+searchableselect_pls > .ticon:before {
+    width: 24px;
+    height: 24px;
+    background-size: 30px 30px;
 }
 `                + Array.from({ length: 40 }, (_, i) => i + 1).map((n) => `.ticon.type${n}:before {background-image: url(./img/type/${n}.png);}`).join("\r\n") +
 `</style>`);
