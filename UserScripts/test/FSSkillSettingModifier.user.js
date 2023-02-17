@@ -1131,6 +1131,7 @@
 
         async import() {
             let message;
+            let shouldNotice = false;
             try {
                 const json = await SkillIO.io.import();
                 const data = JSON.parse(json);
@@ -1139,12 +1140,16 @@
                 message = "入力が完了しました。";
                 if (hasMissedAnySkills) {
                     message += "\n一部スキルが存在しないため、設定を完全に復元することができませんでした。";
+                    shouldNotice = true;
                 }
             } catch(e) {
                 message = `入力に失敗しました。[${e.message || ""}]`;
+                shouldNotice = true;
             }
 
-            alert(message);
+            if (shouldNotice) {
+                alert(message);
+            }
         }
 
         export() {
