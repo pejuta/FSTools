@@ -3,7 +3,7 @@
 // @namespace   https://twitter.com/11powder
 // @description 童話画廊の戦闘設定を快適にする
 // @include     /^http:\/\/soraniwa\.428\.st\/fs\/?(?:\?mode=battle(&.*)?)?$/
-// @version     1.0.2
+// @version     1.0.3
 // @require     https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js
 // @updateURL   https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
 // @downloadURL https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
@@ -15,10 +15,6 @@
 
     class SkillSelectChaser {
         static init() {
-            $("select.selskill").each((i, e) => {
-                e.dataset.index = (i + 1).toString();
-            });
-
             $("<style type='text/css'/>").html(`
     .skillnamelabel {
         padding-left: 8px;
@@ -70,9 +66,6 @@
             });
 
             $("select.selskill").on("change", (e) => {
-                if (e.currentTarget.dataset.index !== this.$select[0].value) {
-                    return;
-                }
                 this.updateSkillLabel($label, $(e.currentTarget));
             });
 
@@ -558,7 +551,7 @@
             const skillIdx = this.idToIndexhash.hasOwnProperty(target.value) ? this.idToIndexhash[target.value] : -1;
             const $li = this.$ul.children().eq(skillIdx);
 
-            this.$sels.get(index).dataset.index = skillIdx;
+            this.$sels.eq(index).dataset.index = skillIdx;
             this.$vals.eq(index).attr("title", $li.attr("title") || "");
 
             const $pls = this.$pls.eq(index);
