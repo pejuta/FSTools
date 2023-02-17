@@ -516,7 +516,7 @@ searchableselect_pls .ticon:before {
         constructor($baseSelects) {
             this.$baseSelects = $baseSelects;
             
-            this.$ul = this.$buildSkillList(this.$baseSelects);
+            this.$ul = SearchableSelect.$buildSkillList(this.$baseSelects);
 
             this.$ul.on("click", "li", (e) => {
                 this.applySelected(e.currentTarget);
@@ -679,8 +679,8 @@ searchableselect_pls .ticon:before {
                 const skillNum = $tds.eq(0).children(".marks.marki0").html() || "";
                 const skillName = $tds.eq(2).text();
                 const skillUsableCount = $tds.eq(4).text();
-                const queryTarget = `(${skillNum})${typeName ? `【${typeName}】` : ""}${isLocked ? "🔒" : ""}${skillName}${isAuto ? "【自動】【A】" : ""}${isStep ? "【S】" : ""}[${skillUsableCount}]`;
-                const placeholder = `(${skillNum})${typeName ? `【${typeName}】` : ""}${isLocked ? "🔒" : ""}${skillName}`;
+                const queryTarget = `(${skillNum})${typeName ? `【${typeName}】` : ""}${skillName}${isAuto ? "【自動】【A】" : ""}${isStep ? "【S】" : ""}[${skillUsableCount}]`;
+                const placeholder = `(${skillNum})${typeName ? `【${typeName}】` : ""}${skillName}`;
 
                 return `<li title="${$hoverDesc.text()}" data-skillid="${skillid}" data-querytarget="${queryTarget}" data-placeholder="${placeholder}" data-snum="${skillNum}" data-stype="${typeName}" data-sprop="${skillProp}" data-sname="${skillName}" data-islocked="${isLocked}" data-isstep="${isStep}" data-isauto="${isAuto}" data-scount="${skillUsableCount}">${innerHTML}</li>`;
             }).get()
@@ -1276,7 +1276,7 @@ searchableselect_pls .ticon:before {
     new SearchableSelect($(".selskill")).enable();
     new SearchableSelect($("select[name='kouhai_base']")).enable();
     new SearchableSelect($("select[name='kouhai_mix']")).enable();
-    $kouhai.prev().css("margin-top", "-4px");
+    $("select[name='kouhai_base']").add("select[name='kouhai_mix']").prev().css("margin-top", "-4px");
 
     SkillTypeCounter.init();
     new SkillTypeCounter().enable($("div.divp").parent("div"));
