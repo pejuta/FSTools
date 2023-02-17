@@ -479,7 +479,7 @@
     background-position: center;
     background-repeat: no-repeat;
 }
-`                + Array.from({ length: 40 }, (_, i) => i + 1).map((n) => `.ticon.type1:before {background-image: url(./img/type/${n}.png);}`).join("\r\n") +
+`                + Array.from({ length: 40 }, (_, i) => i + 1).map((n) => `.ticon.type${n}:before {background-image: url(./img/type/${n}.png);}`).join("\r\n") +
 `</style>`);
 
             $("div.divp").parent().css("overflow", "clip visible");
