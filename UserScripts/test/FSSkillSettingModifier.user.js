@@ -488,7 +488,7 @@
 .searchableselect_sel .type {
     padding-left: 0;
     padding-right: 0;
-    margin: 0;
+    margin: 0 2px 0 1px;
 }
 .searchableselect_sel .ticon.type {
     background-color: transparent;
@@ -499,10 +499,10 @@
 .searchableselect .ticon.type+span {
     color: #11aa11!important;
 }
-searchableselect_pls .ticon {
+.searchableselect_pls .ticon {
     height: 24px;
 }
-searchableselect_pls .ticon:before {
+.searchableselect_pls .ticon:before {
     width: 24px;
     height: 24px;
     background-size: 30px 30px;
