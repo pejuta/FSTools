@@ -3,7 +3,7 @@
 // @namespace   https://twitter.com/11powder
 // @description 童話画廊の戦闘設定を快適にする
 // @include     /^http:\/\/soraniwa\.428\.st\/fs\/?(?:\?mode=battle(&.*)?)?$/
-// @version     1.0.7
+// @version     1.0.8
 // @require     https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js
 // @updateURL   https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
 // @downloadURL https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
@@ -1125,7 +1125,7 @@
 
         enable() {
             $("<div class='ssfileio'>戦闘設定のファイル管理<div class='ssexport'>出力(保存)</div><div class='ssimport'>入力</div></div>")
-                .appendTo($("h2.subtitle"));
+                .appendTo($("h2.subtitle").slice(0, 2));
 
             $(".ssexport").on("click", () => this.export());
             $(".ssimport").on("click", async () => await this.import());
