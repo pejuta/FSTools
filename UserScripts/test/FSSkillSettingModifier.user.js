@@ -857,8 +857,11 @@ searchableselect_pls .ticon:before {
 `<style type="text/css">
 .skilltypeinfo > p {
     margin: 4px 10px;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0.8) 40%, transparent, transparent);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.3) 40%, transparent, transparent);
     border-radius: 3px;
+}
+.skilltypeinfo .type {
+    background-color:transparent;
 }
 </style>`);
         }
@@ -884,7 +887,7 @@ searchableselect_pls .ticon:before {
                 if (!$stype.children().length) {
                     return;
                 }
-                const className = $stype.children().attr("class");
+                const className = $stype.children().attr("class").slice(0, -5); // removing ' type'
                 typeCountsObj[className] = 1 + (typeCountsObj[className] ?? 0);
             });
 
@@ -913,7 +916,7 @@ searchableselect_pls .ticon:before {
                 }
             }
             stepHTML += "</span>";
-            const typesHTML = "★発動予定タイプ：" + triggeredTypes.map(cls => `<b class="${cls}"><i class="ticon ${cls}"></i></b>`).join("");
+            const typesHTML = "★発動予定タイプ：" + triggeredTypes.map(cls => `<i class="ticon ${cls}"></i>`).join(" ");
             this.$subtypes.html(stepHTML);
             this.$triggeredTypes.html(typesHTML);
         }
@@ -1279,7 +1282,7 @@ searchableselect_pls .ticon:before {
     $("select[name='kouhai_base']").add("select[name='kouhai_mix']").prev().css("margin-top", "-4px");
 
     SkillTypeCounter.init();
-    new SkillTypeCounter().enable($("div.divp").parent("div"));
+    new SkillTypeCounter().enable($("div.divp"));
 
     SkillListMarker.init();
     new SkillListMarker($("table#skill")).enable($(".selskill"));
