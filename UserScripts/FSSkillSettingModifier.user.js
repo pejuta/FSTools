@@ -3,7 +3,7 @@
 // @namespace   https://twitter.com/11powder
 // @description 童話画廊の戦闘設定を快適にする
 // @include     /^http:\/\/soraniwa\.428\.st\/fs\/?(?:\?mode=battle(&.*)?)?$/
-// @version     1.0.4
+// @version     1.0.5
 // @require     https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js
 // @updateURL   https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
 // @downloadURL https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
@@ -551,7 +551,7 @@
             const skillIdx = this.idToIndexhash.hasOwnProperty(target.value) ? this.idToIndexhash[target.value] : -1;
             const $li = this.$ul.children().eq(skillIdx);
 
-            this.$sels.eq(index).dataset.index = skillIdx;
+            this.$sels.get(index).dataset.index = skillIdx;
             this.$vals.eq(index).attr("title", $li.attr("title") || "");
 
             const $pls = this.$pls.eq(index);
