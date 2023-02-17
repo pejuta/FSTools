@@ -3,7 +3,7 @@
 // @namespace   https://twitter.com/11powder
 // @description 童話画廊の戦闘設定を快適にする
 // @include     /^http:\/\/soraniwa\.428\.st\/fs\/?(?:\?mode=battle(&.*)?)?$/
-// @version     1.0.5
+// @version     1.0.6
 // @require     https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js
 // @updateURL   https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
 // @downloadURL https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
@@ -454,6 +454,7 @@
     padding: 0px 2px 1px;
 }
 
+
 .searchableselect_sel .marks.marki0 {
     width: 2.67em;
     margin-right: 1px;
@@ -668,7 +669,7 @@
                 const $hoverDesc = $tds.eq(3).filter(".skillact").children(".skillhoverdesc");
                 const isStep = $hoverDesc.children("span:first").html() === "【S】";
                 const isAuto = $hoverDesc.contents().eq(1).text().startsWith("自動:");
-
+                const skillDesc = $hoverDesc.contents().eq(1).text();
 
                 const $index = $tds.eq(0).clone();
                 if (isStep) {
@@ -683,8 +684,8 @@
                 const skillNum = $tds.eq(0).children(".marks.marki0").html() || "";
                 const skillName = $tds.eq(2).text();
                 const skillUsableCount = $tds.eq(4).text();
-                const queryTarget = `(${skillNum})${typeName ? `【${typeName}】` : ""}${isLocked ? "🔒" : ""}${skillName}${isAuto ? "【自動】【A】" : ""}${isStep ? "【S】" : ""}[${skillUsableCount}]`;
-                const placeholder = `(${skillNum})${typeName ? `【${typeName}】` : ""}${isLocked ? "🔒" : ""}${skillName}`;
+                const queryTarget = `(${skillNum})${typeName ? `<${typeName}>` : ""}${isLocked ? "🔒" : ""}${skillName}${isAuto ? "[自動][AUTO]" : ""}${isStep ? "[ステップ][STEP]" : ""}[${skillUsableCount}]` + skillDesc;
+                const placeholder = `(${skillNum})${typeName ? `<${typeName}>` : ""}${isLocked ? "🔒" : ""}${skillName}`;
 
                 return `<li title="${$hoverDesc.text()}" data-skillid="${skillid}" data-querytarget="${queryTarget}" data-placeholder="${placeholder}" data-snum="${skillNum}" data-stype="${typeName}" data-sprop="${skillProp}" data-sname="${skillName}" data-islocked="${isLocked}" data-isstep="${isStep}" data-isauto="${isAuto}" data-scount="${skillUsableCount}">${innerHTML}</li>`;
             }).get()
@@ -735,10 +736,10 @@
                 return;
             }
 
-            const queryArray = val.split(/[\s+,]/g).filter((q) => q); // remove first or last empty if any
+            const queryArray = val.split(/[\s+,]/g).filter((q) => q).map((q) => q.toUpperCase()); // remove first or last empty if any
 
             this.$ul.children().each((i, e) => {
-                const queryTarget = e.dataset.querytarget || "";
+                const queryTarget = e.dataset.querytarget?.toUpperCase() || "";
                 if (queryArray.every((q) => queryTarget.indexOf(q) !== -1)) {
                     e.style.display = "";
                 } else {
