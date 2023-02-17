@@ -1232,11 +1232,10 @@
 
     SkillSelectChaser.init();
     const $connectno = $("select[name='connectno']");
-    if (!($connectno.length === 1 && $emmitno.length === 1)) {
+    if ($connectno.length !== 1) {
         return;
     }
     new SkillSelectChaser($connectno).enable();
-    new SkillSelectChaser($emmitno).enable();
 
     if ($("#skill1").length !== 1) {
         return;
