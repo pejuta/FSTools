@@ -857,10 +857,11 @@ searchableselect_pls .ticon:before {
 `<style type="text/css">
 .skilltypeinfo > p {
     margin: 4px 10px;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0.3) 40%, transparent, transparent);
+    padding-left: 4px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.25) 40%, transparent, transparent);
     border-radius: 3px;
 }
-.skilltypeinfo .type {
+.skilltypeinfo i, .skilltypeinfo span {
     background-color:transparent;
 }
 </style>`);
@@ -871,7 +872,7 @@ searchableselect_pls .ticon:before {
 
         enable($insertBefore) {
             this.$info = $("<div class='skilltypeinfo'/>").insertBefore($insertBefore);
-            this.$triggeredTypes = $("<p class='skilltypemain'/>").appendTo(this.$info);
+            //this.$triggeredTypes = $("<p class='skilltypemain'/>").appendTo(this.$info);
             this.$subtypes = $("<p class='skilltypesub'/>").appendTo(this.$info);
 
             $(".selskill").on("change", (e) => this.update());
@@ -910,15 +911,16 @@ searchableselect_pls .ticon:before {
             const triggeredTypes = [];
             let stepHTML = "★スキルタイプ：<span>";
             for (let typ of typeList) {
-                stepHTML += `<span class="${typ.cls}">【<i class="ticon ${typ.cls}"></i>×<b>${typeBonusCountsObj[typ.cls]}</b>】</span>`;
+                const typeCountHtml = typ.count >= SUBTYPE_REQUIREDBONUS_COUNT ? `<b>×<span>${typeBonusCountsObj[typ.cls]}</span></b>` : `×<span>${typeBonusCountsObj[typ.cls]}</span>`;
+                stepHTML += `<span class="${typ.cls}"><i class="ticon ${typ.cls}"></i>${typeCountHtml}</span> `;
                 if (typ.count >= SUBTYPE_REQUIREDBONUS_COUNT) {
                     triggeredTypes.push(typ.cls);
                 }
             }
             stepHTML += "</span>";
-            const typesHTML = "★発動予定タイプ：" + triggeredTypes.map(cls => `<i class="ticon ${cls}"></i>`).join(" ");
+            //const typesHTML = "★発動予定タイプ：" + triggeredTypes.map(cls => `<i class="ticon ${cls}"></i>`).join("");
             this.$subtypes.html(stepHTML);
-            this.$triggeredTypes.html(typesHTML);
+            //this.$triggeredTypes.html(typesHTML);
         }
 
         getSelectedMainTypeClass() {
