@@ -3,7 +3,7 @@
 // @namespace   https://twitter.com/11powder
 // @description 童話画廊の戦闘設定を快適にする
 // @include     /^http:\/\/soraniwa\.428\.st\/fs\/?(?:\?mode=battle(&.*)?)?$/
-// @version     1.0.3
+// @version     1.0.4
 // @require     https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js
 // @updateURL   https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
 // @downloadURL https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
@@ -665,7 +665,7 @@
                 }
                 const isLocked = $tds.eq(2).find(".cshigh").length > 0;
 
-                const $hoverDesc = $tds.eq(3).children(".skillact").children(".skillhoverdesc");
+                const $hoverDesc = $tds.eq(3).filter(".skillact").children(".skillhoverdesc");
                 const isStep = $hoverDesc.children("span:first").html() === "【S】";
                 const isAuto = $hoverDesc.contents().eq(1).text().startsWith("自動:");
 
