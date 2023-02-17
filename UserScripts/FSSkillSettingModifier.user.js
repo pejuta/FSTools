@@ -3,7 +3,7 @@
 // @namespace   https://twitter.com/11powder
 // @description 童話画廊の戦闘設定を快適にする
 // @include     /^http:\/\/soraniwa\.428\.st\/fs\/?(?:\?mode=battle(&.*)?)?$/
-// @version     1.0.1
+// @version     1.0.2
 // @require     https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js
 // @updateURL   https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
 // @downloadURL https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
@@ -670,7 +670,7 @@
                     type = `<i class="ticon ${$tds.eq(1).children()[0].className}" title="${typeName}"></i>`;
                     skillProp = $tds.eq(2).children("span:first").html();
                 }
-                const isLocked = $tds.eq(2).has(".cshigh");
+                const isLocked = $tds.eq(2).find(".cshigh").length > 0;
 
                 const $hoverDesc = $tds.eq(3).children(".skillact").children(".skillhoverdesc");
                 const isStep = $hoverDesc.children("span:first").html() === "【S】";
