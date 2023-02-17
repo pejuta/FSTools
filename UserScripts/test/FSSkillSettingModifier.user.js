@@ -136,6 +136,10 @@
         opacity: 1;
     }
 
+    .${SKILL_ITEM_CLASSNAME} > .skilldesc {
+        vertical-align: bottom;
+    }
+
     .${SKILL_ITEM_CLASSNAME}.serifactive > .${SKILL_ITEM_TOGGLE_CLASSNAME}:after {
         content: "セリフ▲";
     }
