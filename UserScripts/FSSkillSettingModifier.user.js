@@ -3,7 +3,7 @@
 // @namespace   https://twitter.com/11powder
 // @description 童話画廊の戦闘設定を快適にする
 // @include     /^http:\/\/soraniwa\.428\.st\/fs\/?(?:\?mode=battle(&.*)?)?$/
-// @version     1.0.8
+// @version     1.0.9
 // @require     https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js
 // @updateURL   https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
 // @downloadURL https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
@@ -60,13 +60,20 @@
                 if (!strIndex) {
                     this.updateSkillLabel($label);
                 } else {
-                    const $skillSelect = $("select.selskill").eq(parseInt(strIndex, 10) - 1);
-                    this.updateSkillLabel($label, $skillSelect);
+                    const $connectSkill = $("select.selskill").eq(parseInt(strIndex, 10) - 1);
+                    this.updateSkillLabel($label, $connectSkill);
                 }
             });
 
             $("select.selskill").on("change", (e) => {
-                this.updateSkillLabel($label, $(e.currentTarget));
+                const strIndex = this.$select.val();
+                if (!strIndex) {
+                    return;
+                }
+                const $connectSkill = $("select.selskill").eq(parseInt(strIndex, 10) - 1);
+                if ($connectSkill.is(e.currentTarget)) {
+                    this.updateSkillLabel($label, $connectSkill);
+                }
             });
 
             this.$select.each((i, e) => {
