@@ -3,7 +3,7 @@
 // @namespace   https://twitter.com/11powder
 // @description 童話画廊の戦闘設定を快適にする
 // @include     /^http:\/\/soraniwa\.428\.st\/fs\/?(?:\?mode=battle(&.*)?)?$/
-// @version     1.0.9
+// @version     1.0.10
 // @require     https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js
 // @updateURL   https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
 // @downloadURL https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
@@ -1102,22 +1102,7 @@
         }
 
         constructor() {
-            // 1 or 2; must validate
-            this.$column = $("select[name='line']");
-            // default: empty
-            this.$mainType = $("#s_type");
-            this.$connectSkill = $("select[name='connectno']");
-
-            this.$skills = $("span.skilldesc").prev("select[name^=skill]");
-            this.$sconds = $("span.marks.marki0 + select[name^=scond]");
-            this.$icons = $("select[name^=icon]");
-            this.$serifs = $("input[type='text'][name^=serif]");
-            if (!(this.$mainType.length && this.$column.length &&
-                  this.$connectSkill.length &&
-                  this.$skills.length && this.$sconds.length &&
-                  this.$icons.length && this.$serifs.length)) {
-                throw new Error("invalid operation: missedelement");
-            }
+            this._$queryElements();
 
             this.skillsCount = this.$sconds.length;
             if (![this.$skills.length, this.$sconds.length, this.$icons.length, this.$serifs.length].every((x) => x === this.skillsCount)) {
@@ -1128,6 +1113,26 @@
             this.conditionIds = new Set(selectOptionsToArray(this.$sconds.eq(0)));
             this.skillIds  = new Set(selectOptionsToArray(this.$skills.eq(0)));
             this.iconUrls = new Set(selectOptionsToArray(this.$icons.eq(0)));
+        }
+
+        _$queryElements() {
+            // 1 or 2; must validate
+            this.$column = $("select[name='line']");
+            // default: empty
+            this.$mainType = $("#s_type");
+            this.$connectSkill = $("select[name='connectno']");
+
+            this.$skills = $("span.skilldesc").prev("select[name^=skill]");
+            this.$sconds = $("span.marks.marki0 + select[name^=scond]");
+            this.$icons = $("select[name^=icon]");
+            this.$serifs = $("input[type='text'][name^=serif]");
+
+            if (!(this.$mainType.length && this.$column.length &&
+                this.$connectSkill.length &&
+                this.$skills.length && this.$sconds.length &&
+                this.$icons.length && this.$serifs.length)) {
+                throw new Error("invalid operation: missedelement");
+            }
         }
 
         enable() {
@@ -1163,7 +1168,7 @@
 
         export() {
             const dat = new Date();
-            const dateText = dat.getFullYear().toString().slice(-2) + ("00" + dat.getMonth()).slice(-2) + ("00" + dat.getDate()).slice(-2);
+            const dateText = dat.getFullYear().toString().slice(-2) + ("00" + (dat.getMonth() + 1)).slice(-2) + ("00" + dat.getDate()).slice(-2);
 
             const title = prompt("保存する戦闘設定のタイトルを入力することができます。（オプション）", dateText);
             if (title === null) {
@@ -1178,6 +1183,8 @@
         }
 
         _buildData(title) {
+            this._$queryElements();
+
             const columnId = this.$column.val();
             const mainTypeId = this.$mainType.val();
             const connectSkillId = this.$connectSkill.val();
@@ -1200,6 +1207,8 @@
             if (errMessage) {
                 throw new Error(errMessage);
             }
+
+            this._$queryElements();
 
             this.$column.val(data.columnId);
             this.$mainType.val(data.mainTypeId);
