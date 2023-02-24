@@ -3,7 +3,7 @@
 // @namespace   https://twitter.com/11powder
 // @description 童話画廊の戦闘設定を快適にする
 // @include     /^http:\/\/soraniwa\.428\.st\/fs\/?(?:\?mode=battle(&.*)?)?$/
-// @version     1.0.9
+// @version     1.0.10
 // @require     https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js
 // @updateURL   https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
 // @downloadURL https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
@@ -1163,7 +1163,7 @@
 
         export() {
             const dat = new Date();
-            const dateText = dat.getFullYear().toString().slice(-2) + ("00" + dat.getMonth()).slice(-2) + ("00" + dat.getDate()).slice(-2);
+            const dateText = dat.getFullYear().toString().slice(-2) + ("00" + (dat.getMonth() + 1)).slice(-2) + ("00" + dat.getDate()).slice(-2);
 
             const title = prompt("保存する戦闘設定のタイトルを入力することができます。（オプション）", dateText);
             if (title === null) {
