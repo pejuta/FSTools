@@ -3,7 +3,7 @@
 // @namespace   https://twitter.com/11powder
 // @description 童話画廊の戦闘設定を快適にする
 // @include     /^http:\/\/soraniwa\.428\.st\/fs\/?(?:\?mode=battle(&.*)?)?$/
-// @version     1.0.10
+// @version     1.0.11
 // @require     https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js
 // @updateURL   https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
 // @downloadURL https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
