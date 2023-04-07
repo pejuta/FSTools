@@ -3,15 +3,33 @@
 // @namespace   https://twitter.com/11powder
 // @description 童話画廊の戦闘設定を快適にする
 // @include     /^http:\/\/soraniwa\.428\.st\/fs\/?(?:\?mode=battle(&.*)?)?$/
-// @version     1.0.11
+// @version     1.1.6
 // @require     https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js
-// @updateURL   https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
-// @downloadURL https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
+// @require     https://cdn.jsdelivr.net/npm/idb@7.1.1/build/umd.js
+// @updateURL   https://dl.dropboxusercontent.com/s/2t21avav3cut8fq/FSSkillSettingModifier.user.js
+// @downloadURL https://dl.dropboxusercontent.com/s/2t21avav3cut8fq/FSSkillSettingModifier.user.js
 // @grant       none
 // ==/UserScript==
 
+/** 
+*   idb
+*   Copyright (c) 2016, Jake Archibald <jaffathecake@gmail.com>
+*/
+
 (() => {
     "use strict";
+
+    class Delayer {
+        setDelay(func, delayMS, /* ...args: any[] */) {
+            if (this.id) {
+                clearTimeout(this.id);
+            }
+            this.id = setTimeout((argArray) => {
+                this.id = 0;
+                func.apply(null, argArray);
+            }, delayMS, Array.prototype.slice.call(arguments, 2));
+        }
+    }
 
     class SkillSelectChaser {
         static init() {
@@ -34,6 +52,8 @@
                 this.keepSkillSelectedWhenSwap($(e.currentTarget));
             });
             this.insertSkillNameLabelAfterSelect();
+
+            this.delayer = new Delayer();
         }
 
         keepSkillSelectedWhenSwap($swapButton) {
@@ -66,14 +86,16 @@
             });
 
             $("select.selskill").on("change", (e) => {
-                const strIndex = this.$select.val();
-                if (!strIndex) {
-                    return;
-                }
-                const $connectSkill = $("select.selskill").eq(parseInt(strIndex, 10) - 1);
-                if ($connectSkill.is(e.currentTarget)) {
-                    this.updateSkillLabel($label, $connectSkill);
-                }
+                this.delayer.setDelay(() => {
+                    const strIndex = this.$select.val();
+                    if (!strIndex) {
+                        return;
+                    }
+                    const $connectSkill = $("select.selskill").eq(parseInt(strIndex, 10) - 1);
+                    if ($connectSkill.is(e.currentTarget)) {
+                        this.updateSkillLabel($label, $connectSkill);
+                    }
+                }, 150);
             });
 
             this.$select.each((i, e) => {
@@ -106,7 +128,7 @@
     class TogglableSkillsWrapper {
         static init() {
             $(document.head).append(
-`<style type="text/css">
+                `<style type="text/css">
     .${SKILL_ITEM_CLASSNAME} {
         position: relative;
     }
@@ -178,7 +200,7 @@
 
             // overwriting default toggle event
             let selifIsVisible = false;
-            $("#skillseriftoggle").off("click").on("click", function() {
+            $("#skillseriftoggle").off("click").on("click", function () {
                 if (selifIsVisible) {
                     $(`.${SKILL_ITEM_CLASSNAME}`).removeClass("serifactive");
                 } else {
@@ -209,7 +231,7 @@
             super.init();
 
             $(document.head).append(
-`<style type="text/css">
+                `<style type="text/css">
     .${SKILL_ITEM_CLASSNAME} > .marks.marki0 {
         padding: auto 4px;
         text-align: left;
@@ -279,7 +301,7 @@
                 $skill.children("select[name^='scond']").get(0).name = "scond" + i;
                 const $serif = $skill.children(".skillserif");
                 $serif.children("select[name^='icon']").get(0).name = "icon" + i;
-                $serif.children("input[type='text'][name^='serif']").get(0).name= "serif" + i;
+                $serif.children("input[type='text'][name^='serif']").get(0).name = "serif" + i;
                 $serif.children("[class^='innerserif']").each((_, e) => {
                     e.className = "innerserif" + i;
                 });
@@ -309,18 +331,6 @@
                 $skill.attr("data-index", i);
                 $skill.data("index", i);
             }
-        }
-    }
-
-    class Delayer {
-        setDelay(func, delayMS, /* ...args: any[] */) {
-            if (this.id) {
-                clearTimeout(this.id);
-            }
-            this.id = setTimeout((argArray) => {
-                this.id = 0;
-                func.apply(null, argArray);
-            }, delayMS, Array.prototype.slice.call(arguments, 2));
         }
     }
 
@@ -520,14 +530,14 @@
     background-size: 30px 30px;
 }
 `                + Array.from({ length: 40 }, (_, i) => i + 1).map((n) => `.ticon.type${n}:before {background-image: url(./img/type/${n}.png);}`).join("\r\n") +
-`</style>`);
+                `</style>`);
 
             $("div.divp").parent().css("overflow", "clip visible");
         }
 
         constructor($baseSelects) {
             this.$baseSelects = $baseSelects;
-            
+
             this.$ul = SearchableSelect.$buildSkillList(this.$baseSelects);
 
             this.$ul.on("click", "li", (e) => {
@@ -549,7 +559,7 @@
         }
 
         rescan(index /* 0 based */, /* optional */ updateMarks) {
-            updateMarks = typeof(updateMarks) === "undefined" ? true : updateMarks;
+            updateMarks = typeof (updateMarks) === "undefined" ? true : updateMarks;
 
             if (!this.$baseSelects.length) {
                 return;
@@ -697,8 +707,8 @@
 
                 return `<li title="${$hoverDesc.text()}" data-skillid="${skillid}" data-querytarget="${queryTarget}" data-placeholder="${placeholder}" data-snum="${skillNum}" data-stype="${typeName}" data-sprop="${skillProp}" data-sname="${skillName}" data-islocked="${isLocked}" data-isstep="${isStep}" data-isauto="${isAuto}" data-scount="${skillUsableCount}">${innerHTML}</li>`;
             }).get()
-              .filter((e) => e) // excluding nulls
-              .join("");
+                .filter((e) => e) // excluding nulls
+                .join("");
 
             return $(`<ul>${lisHtml}</ul>`);
         }
@@ -801,7 +811,7 @@
         static init() {
 
             $(document.head).append(
-`<style type="text/css">
+                `<style type="text/css">
 .itemlist tr.marked > td:nth-of-type(3) {
     font-weight: bold;
 }
@@ -830,6 +840,8 @@
                 return;
             }
 
+            this.delayer = new Delayer();
+
             this.$table.find("tr").slice(1).each((i, e) => {
                 const typeTd = $(e).children("td").get(1);
                 if (!typeTd) {
@@ -838,7 +850,9 @@
                 e.dataset.sid = typeTd.id.substr(4);
             });
             $selects.on("change", (_) => {
-                this.update($selects);
+                this.delayer.setDelay(() => {
+                    this.update($selects);
+                }, 150);
             });
 
             this.update($selects);
@@ -862,12 +876,12 @@
         }
     }
 
-    const MAINTYPE_TYPEBONUS_COUNT = 5; 
+    const MAINTYPE_TYPEBONUS_COUNT = 5;
     const SUBTYPE_REQUIREDBONUS_COUNT = 3;
     class SkillTypeCounter {
         static init() {
             $(document.head).append(
-`<style type="text/css">
+                `<style type="text/css">
 .skilltypeinfo > p {
     margin: 4px 10px;
     padding-left: 4px;
@@ -888,8 +902,13 @@
             //this.$triggeredTypes = $("<p class='skilltypemain'/>").appendTo(this.$info);
             this.$subtypes = $("<p class='skilltypesub'/>").appendTo(this.$info);
 
-            $(".selskill").on("change", (e) => this.update());
-            $("#s_type").on("change", (e) => this.update());
+            this.delayer = new Delayer();
+
+            $(".selskill").add($("#s_type")).on("change", (e) => {
+                this.delayer.setDelay(() => {
+                    this.update();
+                }, 100);
+            });
             this.update();
         }
 
@@ -947,36 +966,43 @@
 
     class Utils {
         static enableskillCountInfo() {
-            $(document.head).append("<style type='text/css'>.skillcount{ display: inline-block; width: 2em; text-align: center; }</style>");
-            window.reloadSkill = function reloadSkill(){
-                $(".selskill").each((i, e) => {
-                    const $targetSkillDesc = $(e).next(/*desc*/);
+            const delayer = new Delayer();
+            $(document.head).append("<style type='text/css'>.skillcount{ display: inline-block; width: 2em; text-align: center; }.skillrank{ display: inline-block; width: 2.5em; text-align: center; }</style>");
 
-                    const skillId = $(e).val();
-                    const $desc = $("#desc" + skillId);
-                    if (!$desc.length) {
-                        $targetSkillDesc.html("").attr("title", "");
-                        return;
-                    }
-                    const $hoverDesc = $desc.children(".skillhoverdesc");
+            function reloadSkill() {
+                delayer.setDelay(() => {
+                    $(".selskill").each((i, e) => {
+                        const $targetSkillDesc = $(e).next(/*desc*/);
 
-                    const sdesc = $hoverDesc.html();
-                    const stype = $("#type" + skillId).html();
-                    const $countLeft = $desc.next("td");
-                    let scount = "";
-                    if ($countLeft.children().length === 1) {
-                        const $countLeftClone = $countLeft.clone();
-                        $countLeftClone.children().html("[" + $countLeftClone.children().html() + "]");
-                        scount = $countLeftClone.html();
-                    } else {
-                        scount = "[" + $countLeft.html() + "]";
-                    }
-                    scount = `<span class="skillcount">${scount}</span>`;
+                        const skillId = $(e).val();
+                        const $desc = $("#desc" + skillId);
+                        if (!$desc.length) {
+                            $targetSkillDesc.html("").attr("title", "");
+                            return;
+                        }
+                        const $hoverDesc = $desc.children(".skillhoverdesc");
 
-                    $targetSkillDesc.html(scount + stype + sdesc).attr("title", $hoverDesc.text());
-                });
+                        const sdesc = $hoverDesc.html();
+                        const stype = $("#type" + skillId).html();
+                        const $countLeftTd = $desc.next("td");
+                        let scount = "";
+                        if ($countLeftTd.children().length === 1) {
+                            const $countLeftClone = $countLeftTd.clone();
+                            $countLeftClone.children().html("[" + $countLeftClone.children().html() + "]");
+                            scount = $countLeftClone.html();
+                        } else {
+                            scount = "[" + $countLeftTd.html() + "]";
+                        }
+                        scount = `<span class="skillcount">${scount}</span>`;
+
+                        const srank = `<span class="skillrank">(${$countLeftTd.next("td").text()})</span>`;
+
+                        $targetSkillDesc.html(scount + srank + stype + sdesc).attr("title", $hoverDesc.text());
+                    });
+                }, 100);
             };
 
+            window.reloadSkill = reloadSkill;
             window.reloadSkill();
         }
     }
@@ -990,17 +1016,17 @@
             const ths = this;
             this.$dlAnchor = $("<a/>").css("display", "none").appendTo(document.body);
             this.$dlButton = $("<input type='file'>")
-                            .attr("accept", this.mime)
-                            .css("display", "none")
-                            .appendTo(document.body);
+                .attr("accept", this.mime)
+                .css("display", "none")
+                .appendTo(document.body);
         }
 
         export(content, filename) {
-            const blob = new Blob([content], { type : this.mime });
+            const blob = new Blob([content], { type: this.mime });
             const file = new File([blob], filename);
             const anchorElem = this.$dlAnchor[0];
             // location.href =  URL.createObjectURL(file);
-            anchorElem.href =  URL.createObjectURL(file);
+            anchorElem.href = URL.createObjectURL(file);
             anchorElem.download = filename;
             anchorElem.click();
         }
@@ -1012,7 +1038,7 @@
                     return;
                 }
 
-                this.$dlButton.one("change", async function() {
+                this.$dlButton.one("change", async function () {
                     try {
                         const files = this.files;
                         if (!files || files.length === 0) {
@@ -1061,13 +1087,181 @@
         return filename.replace(/[<>:"\/\\|?*]/, "");
     }
 
+    class SkillSettingElements {
+        constructor() {
+        }
+        static query(/* optional */ context) {
+            context = context || document;
+            const obj = new SkillSettingElements();
+            // 1 or 2; must validate
+            obj.$column = $("select[name='line']", context);
+            // default: empty
+            obj.$mainType = $("#s_type", context);
+            obj.$connectSkill = $("select[name='connectno']", context);
+
+            obj.$skills = $("span.skilldesc", context).prev("select[name^=skill]");
+            obj.$sconds = $("span.marks.marki0 + select[name^=scond]", context);
+            obj.$icons = $("select[name^=icon]", context);
+            obj.$serifs = $("input[type='text'][name^=serif]", context);
+
+            if (!(obj.$mainType.length && obj.$column.length &&
+                obj.$connectSkill.length &&
+                obj.$skills.length && obj.$sconds.length &&
+                obj.$icons.length && obj.$serifs.length)) {
+                throw new Error("invalid operation: missedelement");
+            }
+
+            return obj;
+        }
+    }
+
+    class SkillSettingForm {
+        constructor() {
+            const $obj = SkillSettingElements.query();
+
+            this.skillsCount = $obj.$sconds.length;
+            if (![$obj.$skills.length, $obj.$sconds.length, $obj.$icons.length, $obj.$serifs.length].every((x) => x === this.skillsCount)) {
+                throw new Error("invalid operation: skillscount");
+            }
+
+            this.typeIds = new Set(selectOptionsToArray($obj.$mainType.eq(0)));
+            this.conditionIds = new Set(selectOptionsToArray($obj.$sconds.eq(0)));
+            this.skillIds = new Set(selectOptionsToArray($obj.$skills.eq(0)));
+            this.iconUrls = new Set(selectOptionsToArray($obj.$icons.eq(0)));
+        }
+
+        apply(data) {
+            const hasMissedAnySkills = this._applyDataIntoForm(data);
+            this._triggerChangeEvents();
+            if (hasMissedAnySkills) {
+                return "一部スキルが存在しないため、設定を完全に復元することができませんでした。";
+                shouldNotice = true;
+            }
+            return "";
+        }
+
+        buildData(title, /* optional */ context) {
+            const $obj = SkillSettingElements.query(context);
+
+            const columnId = $obj.$column.val();
+            const mainTypeId = $obj.$mainType.val();
+            const connectSkillId = $obj.$connectSkill.val();
+
+            const skills = [];
+            for (let si = 0; si < this.skillsCount; si++) {
+                const $s = $obj.$skills.eq(si);
+                const $sc = $obj.$sconds.eq(si);
+                const $ic = $obj.$icons.eq(si);
+                const $srf = $obj.$serifs.eq(si);
+                const [condId, skillId, skillName, iconUrl, serifBody] = [$sc.val(), $s.val(), $s.children("option:selected").html(), $ic.val(), $srf.val()];
+                skills.push(new SkillItem(condId, skillId, skillName, iconUrl, serifBody));
+            }
+
+            return new SkillSettingData(title, mainTypeId, columnId, skills, connectSkillId);
+        }
+
+        _applyDataIntoForm(data) {
+            const errMessage = this._validateData(data);
+            if (errMessage) {
+                throw new Error(errMessage);
+            }
+
+            const $obj = SkillSettingElements.query();
+
+            $obj.$column.val(data.columnId);
+            $obj.$mainType.val(data.mainTypeId);
+            $obj.$connectSkill.val(data.connectSkillId);
+
+            const hasAnyMissedSkills = !data.skills.every(x => this.skillIds.has(x.skillId));
+
+            for (let si = 0; si < this.skillsCount; si++) {
+                if (si >= data.skills.length || !this.skillIds.has(data.skills[si].skillId)) {
+                    // fillempty
+                    $obj.$skills.eq(si).val("0");
+                    $obj.$sconds.eq(si).val("0");
+                    $obj.$serifs.eq(si).val("");
+                    continue;
+                }
+
+                const skill = data.skills[si];
+                $obj.$skills.eq(si).val(skill.skillId);
+                $obj.$sconds.eq(si).val(skill.condId);
+                $obj.$serifs.eq(si).val(skill.serifBody);
+            }
+
+            for (let si = 0; si < this.skillsCount; si++) {
+                if (si >= data.skills.length || !this.skillIds.has(data.skills[si].skillId) || !this.iconUrls.has(data.skills[si].iconUrl)) {
+                    // fillempty
+                    $obj.$icons.eq(si).val("-1");
+                } else {
+                    $obj.$icons.eq(si).val(data.skills[si].iconUrl);
+                }
+            }
+
+            return hasAnyMissedSkills;
+        }
+
+        _triggerChangeEvents() {
+            const $obj = SkillSettingElements.query();
+
+            $obj.$skills.each((i, e) => e.dispatchEvent(new Event("change")));
+            $obj.$sconds.each((i, e) => e.dispatchEvent(new Event("change")));
+            $obj.$serifs.each((i, e) => e.dispatchEvent(new Event("change")));
+            $obj.$icons.each((i, e) => e.dispatchEvent(new Event("change")));
+            $obj.$column[0].dispatchEvent(new Event("change"));
+            $obj.$mainType[0].dispatchEvent(new Event("change"));
+            $obj.$connectSkill[0].dispatchEvent(new Event("change"));
+        }
+
+        _validateData(data) {
+            if (!data) {
+                return "argument not given";
+            }
+
+            if (!["1", "2"].some(x => x === data.columnId)) {
+                return "invalid column";
+            }
+
+            if (!data.skills || data.skills.length === 0 || data.skills.length > this.skillsCount) {
+                return "invalid skills count";
+            }
+
+            if (!this.typeIds.has(data.mainTypeId)) {
+                return "not-enabled type";
+            }
+
+            if (!data.skills.every(x => this.conditionIds.has(x.condId))) {
+                return "not-enabled skill condition";
+            }
+
+            // if (!data.skills.every(x => this.skillIds.has(x.skillId))) {
+            //     return "not owned skill";
+            // }
+
+            const connectSkillN = parseInt(data.connectSkillId || "0", 10);
+            if (connectSkillN < 0 || connectSkillN > this.skillsCount) {
+                return "invalid connect-skill";
+            }
+
+            return "";
+        }
+
+        _hasSkillId(id) {
+            return this.skillIds.has(id)
+        }
+    }
+
+    function dateToSixDigitsText(dat) {
+        return dat.getFullYear().toString().slice(-2) + ("00" + (dat.getMonth() + 1)).slice(-2) + ("00" + dat.getDate()).slice(-2);
+    }
+
     class SkillIO {
         static init() {
             SkillIO.io = new TextIO("application/json");
             SkillIO.io.init();
 
             $(document.head).append(
-`<style type='text/css'>
+                `<style type='text/css'>
     h2.subtitle {
         position: relative;
     }
@@ -1101,38 +1295,8 @@
 </style>`);
         }
 
-        constructor() {
-            this._$queryElements();
-
-            this.skillsCount = this.$sconds.length;
-            if (![this.$skills.length, this.$sconds.length, this.$icons.length, this.$serifs.length].every((x) => x === this.skillsCount)) {
-                throw new Error("invalid operation: skillscount");
-            }
-
-            this.typeIds = new Set(selectOptionsToArray(this.$mainType.eq(0)));
-            this.conditionIds = new Set(selectOptionsToArray(this.$sconds.eq(0)));
-            this.skillIds  = new Set(selectOptionsToArray(this.$skills.eq(0)));
-            this.iconUrls = new Set(selectOptionsToArray(this.$icons.eq(0)));
-        }
-
-        _$queryElements() {
-            // 1 or 2; must validate
-            this.$column = $("select[name='line']");
-            // default: empty
-            this.$mainType = $("#s_type");
-            this.$connectSkill = $("select[name='connectno']");
-
-            this.$skills = $("span.skilldesc").prev("select[name^=skill]");
-            this.$sconds = $("span.marks.marki0 + select[name^=scond]");
-            this.$icons = $("select[name^=icon]");
-            this.$serifs = $("input[type='text'][name^=serif]");
-
-            if (!(this.$mainType.length && this.$column.length &&
-                this.$connectSkill.length &&
-                this.$skills.length && this.$sconds.length &&
-                this.$icons.length && this.$serifs.length)) {
-                throw new Error("invalid operation: missedelement");
-            }
+        constructor(skillSetting) {
+            this.skillSetting = skillSetting;
         }
 
         enable() {
@@ -1145,149 +1309,31 @@
 
         async import() {
             let message;
-            let shouldNotice = false;
             try {
                 const json = await SkillIO.io.import();
                 const data = JSON.parse(json);
-                const hasMissedAnySkills = this._applyData(data);
-                this._triggerChangeEvents();
-                message = "入力が完了しました。";
-                if (hasMissedAnySkills) {
-                    message += "\n一部スキルが存在しないため、設定を完全に復元することができませんでした。";
-                    shouldNotice = true;
-                }
-            } catch(e) {
+                message = this.skillSetting.apply(data);
+            } catch (e) {
                 message = `入力に失敗しました。[${e.message || ""}]`;
-                shouldNotice = true;
             }
 
-            if (shouldNotice) {
+            if (message) {
                 alert(message);
             }
         }
 
         export() {
-            const dat = new Date();
-            const dateText = dat.getFullYear().toString().slice(-2) + ("00" + (dat.getMonth() + 1)).slice(-2) + ("00" + dat.getDate()).slice(-2);
-
+            const dateText = dateToSixDigitsText(new Date());
             const title = prompt("保存する戦闘設定のタイトルを入力することができます。（オプション）", dateText);
             if (title === null) {
                 return;
             }
 
 
-            const data = this._buildData(title);
+            const data = this.skillSetting.buildData(title);
             const json = JSON.stringify(data, null, 4);
             const filename = `sgskill_${removeInvalidCharacterFromFilename(title) || dateText}.json`;
             SkillIO.io.export(json, filename);
-        }
-
-        _buildData(title) {
-            this._$queryElements();
-
-            const columnId = this.$column.val();
-            const mainTypeId = this.$mainType.val();
-            const connectSkillId = this.$connectSkill.val();
-
-            const skills = [];
-            for (let si = 0; si < this.skillsCount; si++) {
-                const $s = this.$skills.eq(si);
-                const $sc = this.$sconds.eq(si);
-                const $ic = this.$icons.eq(si);
-                const $srf = this.$serifs.eq(si);
-                const [condId, skillId, skillName, iconUrl, serifBody] = [$sc.val(), $s.val(), $s.children("option:selected").html(), $ic.val(), $srf.val()];
-                skills.push(new SkillItem(condId, skillId, skillName, iconUrl, serifBody));
-            }
-
-            return new SkillSettingData(title, mainTypeId, columnId, skills, connectSkillId);
-        }
-
-        _applyData(data) {
-            const errMessage = this._validateData(data);
-            if (errMessage) {
-                throw new Error(errMessage);
-            }
-
-            this._$queryElements();
-
-            this.$column.val(data.columnId);
-            this.$mainType.val(data.mainTypeId);
-            this.$connectSkill.val(data.connectSkillId);
-
-            const hasAnyMissedSkills = !data.skills.every(x => this.skillIds.has(x.skillId));
-
-            for (let si = 0; si < this.skillsCount; si++) {
-                if (si >= data.skills.length || !this.skillIds.has(data.skills[si].skillId)) {
-                    // fillempty
-                    this.$skills.eq(si).val("0");
-                    this.$sconds.eq(si).val("0");
-                    this.$serifs.eq(si).val("");
-                    continue;
-                }
-
-                const skill = data.skills[si];
-                this.$skills.eq(si).val(skill.skillId);
-                this.$sconds.eq(si).val(skill.condId);
-                this.$serifs.eq(si).val(skill.serifBody);
-            }
-
-            for (let si = 0; si < this.skillsCount; si++) {
-                if (si >= data.skills.length || !this.skillIds.has(data.skills[si].skillId) || !this.iconUrls.has(data.skills[si].iconUrl)) {
-                    // fillempty
-                    this.$icons.eq(si).val("-1");
-                } else {
-                    this.$icons.eq(si).val(data.skills[si].iconUrl);
-                }
-            }
-
-            return hasAnyMissedSkills;
-        }
-
-        _triggerChangeEvents() {
-            this.$skills.each((i, e) => e.dispatchEvent(new Event("change")));
-            this.$sconds.each((i, e) => e.dispatchEvent(new Event("change")));
-            this.$serifs.each((i, e) => e.dispatchEvent(new Event("change")));
-            this.$icons .each((i, e) => e.dispatchEvent(new Event("change")));
-            this.$column[0]      .dispatchEvent(new Event("change"));
-            this.$mainType[0]    .dispatchEvent(new Event("change"));
-            this.$connectSkill[0].dispatchEvent(new Event("change"));
-        }
-
-        _validateData(data) {
-            if (!data) {
-                return "argument not given";
-            }
-
-            if (!["1", "2"].some(x => x === data.columnId)) {
-                return "invalid column";
-            }
-
-            if (!data.skills || data.skills.length === 0 || data.skills.length > this.skillsCount) {
-                return "invalid skills count";
-            }
-
-            if (!this.typeIds.has(data.mainTypeId)) {
-                return "not-enabled type";
-            }
-
-            if (!data.skills.every(x => this.conditionIds.has(x.condId))) {
-                return "not-enabled skill condition";
-            }
-
-            // if (!data.skills.every(x => this.skillIds.has(x.skillId))) {
-            //     return "not owned skill";
-            // }
-
-            const connectSkillN = parseInt(data.connectSkillId || "0", 10);
-            if (connectSkillN < 0 || connectSkillN > this.skillsCount)  {
-                return "invalid connect-skill";
-            }
-
-            return "";
-        }
-
-        _hasSkillId(id) {
-            return this.skillIds.has(id)
         }
     }
 
@@ -1318,6 +1364,7 @@
 
     Utils.enableskillCountInfo();
 
+    const skillSetting = new SkillSettingForm();
     SkillIO.init()
-    new SkillIO().enable();
+    new SkillIO(skillSetting).enable();
 })();
