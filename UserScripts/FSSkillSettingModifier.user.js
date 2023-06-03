@@ -3,7 +3,7 @@
 // @namespace   https://twitter.com/11powder
 // @description 童話画廊の戦闘設定を快適にする
 // @include     /^http:\/\/soraniwa\.428\.st\/fs\/?(?:\?mode=battle(&.*)?)?$/
-// @version     1.1.6
+// @version     1.1.7
 // @require     https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js
 // @require     https://cdn.jsdelivr.net/npm/idb@7.1.1/build/umd.js
 // @updateURL   https://dl.dropboxusercontent.com/s/2t21avav3cut8fq/FSSkillSettingModifier.user.js
@@ -674,9 +674,9 @@
                 let typeName = "";
                 let typeHtml = "<i class='ticon'></i>";
                 let skillProp = "[通常]";
-                if ($tds.eq(1).children().text() !== "　　　") {
-                    typeName = $tds.eq(1).text().substr(1, 2);
-                    typeHtml = `<i class="ticon ${$tds.eq(1).children()[0].className}" title="${typeName}"></i>`;
+                if (!$tds.eq(1).children().eq(1).hasClass("typen")) {
+                    typeName = $tds.eq(1).children().eq(1).text().substr(1, 2);
+                    typeHtml = `<i class="ticon ${$tds.eq(1).children()[1].className}" title="${typeName}"></i>`;
                     skillProp = $tds.eq(2).children("span:first").html();
                 }
                 const isLocked = $tds.eq(2).find(".cshigh").length > 0;
@@ -920,7 +920,7 @@
                 if (!$stype.children().length) {
                     return;
                 }
-                const className = $stype.children().attr("class").slice(0, -5); // removing ' type'
+                const className = $stype.children().eq(1).attr("class").slice(0, -5); // removing ' type'
                 typeCountsObj[className] = 1 + (typeCountsObj[className] ?? 0);
             });
 
@@ -995,7 +995,7 @@
                         }
                         scount = `<span class="skillcount">${scount}</span>`;
 
-                        const srank = `<span class="skillrank">(${$countLeftTd.next("td").text()})</span>`;
+                        const srank = `<span class="skillrank">(${$countLeftTd.next("td").contents().eq(1).text()})</span>`;
 
                         $targetSkillDesc.html(scount + srank + stype + sdesc).attr("title", $hoverDesc.text());
                     });
