@@ -4,8 +4,8 @@
 // @description 童話画廊の戦闘設定を快適にする
 // @include     /^https:\/\/soraniwa\.428\.st\/fs\/?(?:\?mode=battle(&.*)?)?$/
 // @version     1.1.9
-// @updateURL   https://dl.dropboxusercontent.com/s/mz1ukxbbrzb0wls/FSSkillSettingModifier.user.js
-// @downloadURL https://dl.dropboxusercontent.com/s/mz1ukxbbrzb0wls/FSSkillSettingModifier.user.js
+// @updateURL   https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
+// @downloadURL https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
 // @grant       none
 // ==/UserScript==
 
