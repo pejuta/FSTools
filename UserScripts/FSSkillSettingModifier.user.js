@@ -2,12 +2,19 @@
 // @name        FSSkillSettingModifier
 // @namespace   https://twitter.com/11powder
 // @description 童話画廊の戦闘設定を快適にする
-// @include     /^https:\/\/soraniwa\.428\.st\/fs\/?(?:\?mode=battle(&.*)?)?$/
-// @version     1.1.9
-// @updateURL   https://dl.dropboxusercontent.com/s/mz1ukxbbrzb0wls/FSSkillSettingModifier.user.js
-// @downloadURL https://dl.dropboxusercontent.com/s/mz1ukxbbrzb0wls/FSSkillSettingModifier.user.js
+// @include     /^http:\/\/soraniwa\.428\.st\/fs\/?(?:\?mode=battle(&.*)?)?$/
+// @version     1.1.8
+// @require     https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js
+// @require     https://cdn.jsdelivr.net/npm/idb@7.1.1/build/umd.js
+// @updateURL   https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
+// @downloadURL https://pejuta.github.io/FSTools/UserScripts/FSSkillSettingModifier.user.js
 // @grant       none
 // ==/UserScript==
+
+/** 
+*   idb
+*   Copyright (c) 2016, Jake Archibald <jaffathecake@gmail.com>
+*/
 
 (() => {
     "use strict";
@@ -135,7 +142,7 @@
         transition: visibility 0s, opacity 0.1s linear;
         display: block;
         top: 0;
-        right: 10px;
+        right: 0;
         padding: 3px 6px;
         margin: 2px;
         border: 1px #997722 solid;
@@ -177,6 +184,15 @@
     }
 </style>`);
 
+            // enabling dblclick toggle
+            $(document).on("dblclick", `.${SKILL_ITEM_CLASSNAME}`, function (e) {
+                if ($(e.target).is("input,select")) {
+                    e.preventDefault();
+                    return false;
+                }
+                $(this).toggleClass("serifactive");
+            });
+
             // enabling toggle buttons
             $(document).on("click", `.${SKILL_ITEM_TOGGLE_CLASSNAME}`, function (e) {
                 $(this).parent(/* "." + SKILL_ITEM_CLASSNAME */).toggleClass("serifactive");
@@ -199,7 +215,10 @@
         }
 
         enable() {
-            this.$container.css("position", "relative").children(".draggable-item.ui-sortable-handle").addClass(SKILL_ITEM_CLASSNAME);
+            this.$container.children(".skillserif").last().next("br").insertAfter(this.$container).css({ position: "relative", top: "-8px", left: "10px" });
+            this.$container.children(".marks.marki0").each((i, e) => {
+                $(e).nextUntil(".marks.marki0").addBack().wrapAll(`<div class="${SKILL_ITEM_CLASSNAME}"></div>`);
+            });
             $("." + SKILL_ITEM_CLASSNAME).each((i, e) => {
                 $(`<div class="${SKILL_ITEM_TOGGLE_CLASSNAME}"/>`).appendTo(e);
                 e.dataset.index = i + 1;
@@ -210,6 +229,28 @@
     class SortableSkills extends TogglableSkillsWrapper {
         static init() {
             super.init();
+
+            $(document.head).append(
+                `<style type="text/css">
+    .${SKILL_ITEM_CLASSNAME} > .marks.marki0 {
+        padding: auto 4px;
+        text-align: left;
+        cursor: grab;
+    }
+    .${SKILL_ITEM_CLASSNAME} > .marks.marki0:before {
+        content: "≡";
+        display: inline-block;
+        width: 15px;
+        left: -10px;
+        color: white;
+        text-align: center;
+        border-radius: 2px;
+    }
+
+    .sortable-chosen {
+        background-color: rgba(255, 165, 0, 0.3);
+    }
+</style>`);
         }
 
         constructor($container) {
@@ -218,15 +259,54 @@
 
         enable() {
             super.enable();
-            this.$container.on("sortupdate", (e) => {
-                this.resetIndexOfSkills();
+
+            // 1. create sortable.js
+            Sortable.create(this.$container[0], {
+                animation: 100,
+                draggable: "." + SKILL_ITEM_CLASSNAME,
+                handle: ".marks.marki0",
+                onChange: () => this.resetIndexOfSkills(),
             });
         }
 
         resetIndexOfSkills() {
             const $skills = $("." + SKILL_ITEM_CLASSNAME);
+            this.overwriteIndices($skills);
             this.triggerConnectChange($skills);
             this.resetDataIndex($skills);
+        }
+
+        overwriteIndices($skills) {
+            for (let i = 1; i <= $skills.length; i++) {
+                // document.getElementById("skill" + i).id = "";
+                // const mark = document.getElementById("s" + i);
+                // if (mark) {
+                //      mark.id = "";
+                // }
+                // document.getElementById("setdesc" + i).id = "";
+
+                const $skill = $skills.eq(i - 1);
+                const prevIndex = $skill.data("index");
+                if (prevIndex === i) {
+                    continue;
+                }
+
+                const selskill = $skill.children(".selskill").get(0);
+                selskill.id = selskill.name = "skill" + i;
+                const mark = $skill.children(".marks.marki0").get(0);
+                mark.id = "s" + i;
+                mark.innerHTML = i.toString();
+                $skill.children(".skilldesc.skillstroll.skill0").get(0).id = "setdesc" + i;
+
+                $skill.children("select[name^='scond']").get(0).name = "scond" + i;
+                const $serif = $skill.children(".skillserif");
+                $serif.children("select[name^='icon']").get(0).name = "icon" + i;
+                $serif.children("input[type='text'][name^='serif']").get(0).name = "serif" + i;
+                $serif.children("[class^='innerserif']").each((_, e) => {
+                    e.className = "innerserif" + i;
+                });
+                $serif.find("input.swap").attr("data-index", i).data("index", i);
+            }
         }
 
         triggerConnectChange($skills) {
@@ -900,10 +980,9 @@
                             $targetSkillDesc.html("").attr("title", "");
                             return;
                         }
-
-                        const $descClone = $desc.children().clone(true);
                         const $hoverDesc = $desc.children(".skillhoverdesc");
 
+                        const sdesc = $hoverDesc.html();
                         const stype = $("#type" + skillId).html();
                         const $countLeftTd = $desc.next("td");
                         let scount = "";
@@ -918,7 +997,7 @@
 
                         const srank = `<span class="skillrank">(${$countLeftTd.next("td").contents().eq(1).text()})</span>`;
 
-                        $targetSkillDesc.html(scount + srank + stype).append($descClone).attr("title", $hoverDesc.text());
+                        $targetSkillDesc.html(scount + srank + stype + sdesc).attr("title", $hoverDesc.text());
                     });
                 }, 100);
             };
@@ -1269,17 +1348,16 @@
         return;
     }
     SortableSkills.init();
-    new SortableSkills($("div.divp > div.draggable-container.ui-sortable")).enable();
+    new SortableSkills($("div.divp")).enable();
 
     SearchableSelect.init();
     new SearchableSelect($(".selskill")).enable();
     new SearchableSelect($("select[name='kouhai_base']")).enable();
     new SearchableSelect($("select[name='kouhai_mix']")).enable();
     $("select[name='kouhai_base']").add("select[name='kouhai_mix']").prev().css("margin-top", "-4px");
-    new SearchableSelect($("select[name='stock_base']")).enable();
 
     SkillTypeCounter.init();
-    new SkillTypeCounter().enable($("div.divp > div.draggable-container.ui-sortable"));
+    new SkillTypeCounter().enable($("div.divp"));
 
     SkillListMarker.init();
     new SkillListMarker($("table#skill")).enable($(".selskill"));
